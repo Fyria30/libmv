@@ -174,7 +174,7 @@ SimMove_Status SimMove::getGhostPoint(MV_ObjectPositioning& object, double time,
         return SimMove_OK;
     }
 
-    cout<< "Speed:" << speed<<endl;
+    //cout<< "Speed:" << speed<<endl;
     status = calculateGhostPoint(enuPoint, orientationPoint,  speed, time, object.positioning.algorithm.lenght, segment); // Put references sign
     
     if(status!=SimMove_OK){
@@ -269,7 +269,7 @@ SimMove_Status SimMove::calculateGhostPoint(Point& a_check, Point& a_orintation,
     while (newDistance > totalDistance) {
         newDistance -= totalDistance;
     }
-     cout << "Now distance: " << nowDistance << "   New distance: " << newDistance << endl;
+    // cout << "Now distance: " << nowDistance << "   New distance: " << newDistance << endl;
 
      //find a segment
      //TODO: easy to speed up
@@ -307,8 +307,8 @@ SimMove_Status SimMove::calculateGhostPoint(Point& a_check, Point& a_orintation,
     }
 
     Point ghostPoint = vec2 * abs(lenghtFromCenterLine) + res; // here the point which we were finding
-    cout << "FouneSegmentVector: " << foundSegment.x << " " << foundSegment.y << endl;
-    cout << "Ghost point: (" << ghostPoint.x << " ; " << ghostPoint.y << " ; "<< ghostPoint.z<<")" << " Segment:" << seg << endl;
+    //cout << "FouneSegmentVector: " << foundSegment.x << " " << foundSegment.y << endl;
+    //cout << "Ghost point: (" << ghostPoint.x << " ; " << ghostPoint.y << " ; "<< ghostPoint.z<<")" << " Segment:" << seg << endl;
     a_check = ghostPoint;
     a_segment = seg;
     //a_orintation.x = foundSegment.GetAngleToOrtoi()-180;              // TODO make the last segment workable 
@@ -320,7 +320,7 @@ double det = foundSegment.x*orti.y - foundSegment.y*orti.x ;
 double angle = atan2(det, dot) * 180/M_PI;
 
     a_orintation.x =  angle;//foundSegment.GetAngleBetweenVectors(MathVector{Point{0,0},Point{1,0}}) -180; // 
-    cout << "Angle: "<< angle << endl;
+    //cout << "Angle: "<< angle << endl;
     //a_orintation.y = 
     //a_orintation.z = 
 
