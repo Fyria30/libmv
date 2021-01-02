@@ -38,7 +38,6 @@ MathVector MathVector::operator * (double scale) {
     return result;
 }
 
-//TODO change to template
 MathVector MathVector::operator / (double scale) {
     MathVector result;
     result.x = this->x / scale;

@@ -16,34 +16,34 @@
 #include <limits>
 
 using namespace std;
+
 #define DOUBLE_NULL numeric_limits<double>::min()
+
 enum SimMove_Status {
     SimMove_ERROR = -1,    // some error occures
     SimMove_OK = 0         // success
 };
+
 class SimMove {
 
 public:
 //----- Members -----
-vector<Point> map;
-vector<double> distanceMap;
-int m_mapSize;
-vector <Point> ghostCar;//for test
-vector <Point> llaCoordinates;
-//MV_Spatial checkPoint;
+vector <Point>  m_map;
+vector <Point>  m_llaCoordinates;
+vector <Point>  m_ghostCar;//for test
+vector <double> m_distanceMap;
 
 //----- Methods -----
-Point GhostPoint(Point, Point, double, double);
-Point GetProection(Point, Point, Point);
-bool checkPoints(Point, Point, Point);
-SimMove_Status findProection(Point, Point&, int& );
+Point GetProectionToLine(Point start_segment, Point end_segment, Point out_point);
+bool isPointInSegment(Point start_segment, Point end_segment, Point out_point);
+SimMove_Status findProection(Point out_point, Point& ref_proection, int& ref_segment );
 SimMove_Status devideMapIntoSegments();
 void saveIntoFileGhostCar(const char* fileName);
-SimMove_Status findNearestTop(Point point, Point & a_top, int &a_pointNumber);
-SimMove_Status calculateGhostPoint(Point&, Point&, double, double, double&, int64_t&);
+SimMove_Status findNearestTop(Point point , Point& ref_top, int& ref_segment_where_the_point_is);
+SimMove_Status calculateGhostPoint(Point& ref_point , Point& ref_orientation, int64_t& ref_segment, Point& ref_pointOnline, double speed, double time, double& ref_lenght );
 
 //----- API -----
-SimMove_Status getGhostPoint(MV_ObjectPositioning&, double, int64_t&);
+SimMove_Status getGhostPoint(MV_ObjectPositioning& data_object, int64_t& ref_segment, double time );
 SimMove_Status loadMapFromFileENU(const char* fileName);
 SimMove_Status enuParserLoad(const char* fileName);
 SimMove_Status llaParserLoad(const char* fileName);
