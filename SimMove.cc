@@ -319,11 +319,13 @@ double dot = foundSegment.x*orti.x + foundSegment.y*orti.y ;
 double det = foundSegment.x*orti.y - foundSegment.y*orti.x ;     
 double angle = atan2(det, dot) * 180/M_PI;
 
+
     a_orintation.x =  angle;//foundSegment.GetAngleBetweenVectors(MathVector{Point{0,0},Point{1,0}}) -180; // 
     //cout << "Angle: "<< angle << endl;
     //a_orintation.y = 
     //a_orintation.z = 
-
+ if (angle >=180 || angle < -180)
+        a_orintation.x = 180 - angle;
 
     ghostCar.push_back(ghostPoint); // for check
     //a_orintation.x =  foundSegment.GetAngleToOrtoi();
