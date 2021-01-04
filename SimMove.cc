@@ -1,10 +1,14 @@
 #include "SimMove.h"
-
-
+#include <unistd.h>
+#include <iostream>
 using namespace rapidjson;
+using namespace std::chrono;
 
 Point refPoint;
 geodetic_converter::GeodeticConverter geodeticConverter;
+
+
+
 
 Point SimMove::GetProectionToLine(Point start_point, Point end_point, Point out_point) // get the proection to the line
 {
@@ -139,7 +143,10 @@ SimMove_Status SimMove::getGhostPoint(MV_ObjectPositioning& ref_object, int64_t&
                                        &enuPoint.y,
                                        &enuPoint.z);
         ref_object.positioning.algorithm.lenght = DOUBLE_NULL;
-        ref_object.positioning.algorithm.flagAlgorithm = true;}
+        ref_object.positioning.algorithm.flagAlgorithm = true;
+       
+        ref_object.positioning.algorithm.timestamp = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+        }
     else{
         enuPoint.x = ref_object.positioning.algorithm.enu[0];
         enuPoint.y = ref_object.positioning.algorithm.enu[1];
@@ -150,8 +157,6 @@ SimMove_Status SimMove::getGhostPoint(MV_ObjectPositioning& ref_object, int64_t&
         enuOnLine.z = ref_object.positioning.algorithm.enuPointOnLine[2];
     }
 
-       
-    
     Point orientationPoint; 
     orientationPoint.x = ref_object.positioning.orientation[0];
     orientationPoint.y = ref_object.positioning.orientation[1];
@@ -162,12 +167,13 @@ SimMove_Status SimMove::getGhostPoint(MV_ObjectPositioning& ref_object, int64_t&
 
     double speed;	
     speed=sqrt(pow(ref_object.positioning.velocity[0], 2) + pow(ref_object.positioning.velocity[1], 2));
-
+    uint64_t time_own = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count() - ref_object.positioning.algorithm.timestamp;  // in ms
+    
     if (speed == 0.0){
         return SimMove_OK;
     }
 
-    status = calculateGhostPoint(enuPoint, orientationPoint, ref_object.positioning.algorithm.segment, enuOnLine, speed, time, ref_object.positioning.algorithm.lenght); // Put references sign
+    status = calculateGhostPoint(enuPoint, orientationPoint, ref_object.positioning.algorithm.segment, enuOnLine, speed, time_own / 1000.0, ref_object.positioning.algorithm.lenght); // Put references sign
     
     if(status!=SimMove_OK){
         return status;
@@ -202,8 +208,8 @@ SimMove_Status SimMove::getGhostPoint(MV_ObjectPositioning& ref_object, int64_t&
     ref_object.positioning.algorithm.enu[2] = enuPoint.z;
 
     ref_object.positioning.orientation[0] = orientationPoint.x; 
-    ref_object.positioning.orientation[2] = orientationPoint.y;
-    ref_object.positioning.orientation[3] = orientationPoint.z;
+    ref_object.positioning.orientation[1] = orientationPoint.y;
+    ref_object.positioning.orientation[2] = orientationPoint.z;
 
     ref_object.positioning.position[0] = llaPoint.x * 10000000;
     ref_object.positioning.position[1] = llaPoint.y * 10000000;
@@ -213,6 +219,7 @@ SimMove_Status SimMove::getGhostPoint(MV_ObjectPositioning& ref_object, int64_t&
     ref_object.positioning.algorithm.enuPointOnLine[1] = enuOnLine.y;
     ref_object.positioning.algorithm.enuPointOnLine[2] = enuOnLine.z;
 
+    ref_object.positioning.algorithm.timestamp = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
     return SimMove_OK;
 }
 
@@ -254,8 +261,9 @@ SimMove_Status SimMove::calculateGhostPoint(Point& ref_check, Point& ref_orintat
     double lenghtToStartSegment = MathVector{ proectionPoint, m_map[segment_count]}.lenght;
     double nowDistance = m_distanceMap[segment_count] + lenghtToStartSegment;
     double newDistance = nowDistance + speed * time;
+    
     double totalDistance = *(m_distanceMap.end() - 1);
-
+    //cout <<"Speed:" << ((newDistance - nowDistance) / time)<< endl;
     //check map. Go to a new lap if the map is over
     while (newDistance > totalDistance) {
         newDistance -= totalDistance;
